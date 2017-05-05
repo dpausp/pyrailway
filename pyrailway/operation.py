@@ -9,6 +9,8 @@ class Operation:
         for station in self.stations:
             if (success and station.runs_on_success) or (not success and station.runs_on_failure): 
                 success = station(options, dependencies)
+                if success == FailFast:
+                    return Result(False, options)
             
         return Result(success, options)
 
@@ -32,6 +34,10 @@ class Result:
         return self.result_data.get(key)
     
     
+    
+class FailFast:
+    pass
+
 
 class Activity:
     
@@ -57,9 +63,16 @@ class step(Activity):
     
     runs_on_success = True
 
+    def __init__(self, func, fail_fast=False):
+        self.func = func
+        self.fail_fast = fail_fast
+
     def __call__(self, options, dependencies):
         res = self.callfunc(options, dependencies)
-        return bool(res)
+        success = bool(res)
+        if not success and self.fail_fast:
+            return FailFast
+        return success
 
 
 class failure(Activity):

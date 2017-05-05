@@ -98,3 +98,11 @@ def test_with_failure_handler():
     assert res.failure
     assert "joke" in res
     assert res["joke"] == JOKE
+    
+    
+def test_fail_fast():
+    def must_not_be_called(options, **k):
+        raise AssertionError("this step must not be called after fail fast!")
+    
+    op = Operation(step(fail, fail_fast=True), failure(must_not_be_called))
+    op()
