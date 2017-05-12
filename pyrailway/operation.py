@@ -44,8 +44,9 @@ class Activity:
     runs_on_success = False
     runs_on_failure = False
     
-    def __init__(self, func):
+    def __init__(self, func, name=None):
         self.func = func
+        self.name = name
         
     def callfunc(self, options, dependencies):
         params = options["params"]
@@ -56,15 +57,15 @@ class Activity:
         return True
 
     def __repr__(self):
-        return "{} with {}".format(self.__class__.__name__, self.func.__name__)
+        return "{} {}".format(self.__class__.__name__, self.name or self.func.__name__)
     
 
 class step(Activity):
     
     runs_on_success = True
 
-    def __init__(self, func, fail_fast=False):
-        self.func = func
+    def __init__(self, func, name=None, fail_fast=False):
+        super().__init__(func, name)
         self.fail_fast = fail_fast
 
     def __call__(self, options, dependencies):
